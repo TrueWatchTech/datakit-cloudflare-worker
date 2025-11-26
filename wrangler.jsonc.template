@@ -1,0 +1,107 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	// Worker name (must be unique within your Cloudflare account)
+	"name": "{{PROJECT_NAME}}",
+	// Entry point TypeScript file for the Worker
+	"main": "src/index.ts",
+	// Cloudflare Workers compatibility date (determines available APIs and features)
+	"compatibility_date": "2025-11-17",
+	// Database migrations for Durable Objects with SQLite storage
+	"version_metadata": {
+    	"binding": "CF_VERSION_METADATA"
+  	},
+	"migrations": [
+		{
+			// SQLite classes to enable for this Durable Object
+			"new_sqlite_classes": [
+				"DataKit"
+			],
+			// Migration tag for versioning
+			"tag": "v1"
+		}
+	],
+	// Custom domain routing configuration
+	"routes": [
+		{
+			// Domain pattern to match incoming requests
+			"pattern": "{{YOUR_CUSTOM_DOMAIN}}",
+			// Enable custom domain (domain must be configured in Cloudflare DNS)
+			"custom_domain": true
+		}
+	],
+	// Environment variables passed to the Worker (non-sensitive configuration)
+	"vars": {
+		// DataKit hostname identifier (will be appended with container instance ID)
+		"ENV_HOSTNAME": "{{PROJECT_NAME}}",
+		// Global tags applied to all metrics/logs collected by DataKit
+		"ENV_GLOBAL_HOST_TAGS": "source=cloudflare-worker",
+		// HTTP server bind address and port inside the container (format: "0.0.0.0:PORT")
+		"ENV_HTTP_LISTEN": "0.0.0.0:9529",
+		// Comma-separated list of DataKit input collectors to enable
+		"ENV_DEFAULT_ENABLED_INPUTS": "cpu,diskio,mem,swap,system,net,host_processes,hostobject,container,dk,logstreaming",
+		// Disable cloud provider metadata synchronization for hostobject input
+		"ENV_INPUT_HOSTOBJECT_DISABLE_CLOUD_PROVIDER_SYNC": "true",
+		// Gin framework log output destination (stdout/stderr)
+		"ENV_GIN_LOG": "stdout",
+		// DataKit log output destination (stdout/stderr)
+		"ENV_LOG": "stdout",
+		// Log level: "info" (default) or "debug" for verbose logging
+		"ENV_LOG_LEVEL": "info",
+		// Enable all DataKit internal metrics collection
+		"ENV_INPUT_DK_ENABLE_ALL_METRICS": "true",
+		// Comma-separated list of HTTP endpoints to expose publicly
+		"ENV_HTTP_PUBLIC_APIS": "/, /logstreaming",
+		// Container inactivity timeout before shutdown (format: "10m", "1h", etc.)
+		// Container will be stopped if no requests received within this time
+		"ENV_SLEEP_AFTER": "5m",
+		// Maximum number of container instances for load balancing
+		// IMPORTANT: containers[0].max_instances must be twice this value (e.g., if MAX_CONTAINER_INSTANCES is 2, max_instances should be 4)
+		// This is required for deployment
+		"MAX_CONTAINER_INSTANCES": "{{MAX_CONTAINER_INSTANCES}}"
+	},
+	// Cloudflare Containers configuration
+	"containers": [
+		{
+			// Durable Object class name that manages this container
+			"class_name": "DataKit",
+			// Container image URL from Cloudflare Container Registry (e.g., registry.workers.dev/your-account/your-image:tag)
+			// Build and push the image first using: docker build, docker tag, docker push
+			"image": "{{CONTAINER_IMAGE}}",
+			// Maximum number of container instances to run concurrently
+			// IMPORTANT: This value must be twice the value of vars.MAX_CONTAINER_INSTANCES (e.g., if MAX_CONTAINER_INSTANCES is 2, this should be 4)
+			// This is required for deployment
+			"max_instances": {{MAX_INSTANCES}},
+			// Grace period (seconds) for active containers during rollout
+			"rollout_active_grace_period": 30,
+			// Rollout strategy: percentage of instances to update at each step
+			// [50, 100] means: update 50% first, then remaining 50%
+			"rollout_step_percentage": [50, 100],
+			// Container instance type (standard-3 provides more resources)
+			"instance_type": "standard-3",
+			// Container name identifier
+			"name": "{{PROJECT_NAME}}"
+		}
+	],
+	// Durable Objects bindings
+	"durable_objects": {
+		"bindings": [
+			{
+				// Durable Object class name
+				"class_name": "DataKit",
+				// Binding name used to access this Durable Object in code (env.CONTAINER)
+				"name": "CONTAINER"
+			}
+		]
+	},
+	// Observability and monitoring settings
+	"observability": {
+		// Enable Cloudflare Workers observability features (logs, metrics, traces)
+		"enabled": true
+	},
+	"dev": {
+		"ip": "0.0.0.0",
+		"port": 9529,
+		"local_protocol": "http",
+		"enable_containers": true
+	}
+}
