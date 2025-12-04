@@ -109,9 +109,3 @@ For complete deployment instructions, configuration details, and troubleshooting
 📖 **[Setup Guide](./SETUP_GUIDE.md)** - Step-by-step deployment instructions
 
 📐 **[Architecture](./ARCHITECTURE.md)** - Technical architecture details
-
----
-
-## License
-
-MIT License - See LICENSE file for details.
