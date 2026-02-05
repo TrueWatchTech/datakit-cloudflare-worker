@@ -12,6 +12,7 @@
 		"typescript": "^5.5.2"
 	},
 	"dependencies": {
-		"@cloudflare/containers": "^0.0.30"
+		"@cloudflare/containers": "^0.0.30",
+		"wrangler": "^4.62.0"
 	}
 }

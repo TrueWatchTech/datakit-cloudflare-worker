@@ -437,6 +437,18 @@ export default {
    * @returns Response from container instance or error response
    */
   async fetch(request, env): Promise<Response> {
+    const datawayToken = (new URL(env.ENV_DATAWAY)).searchParams.get('token');
+    const requestToken = (new URL(request.url)).searchParams.get('token') || null;
+    if (!requestToken || requestToken != datawayToken) {
+      return new Response(JSON.stringify({
+        error: 'Unauthorized: invalid or missing token',
+        timestamp: new Date().toISOString()
+      }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // Parse maximum container instances from environment variable
     let maxInstances: number | null = null;
     

@@ -297,6 +297,23 @@ Use the complete `ENV_DATAWAY` URL from your [TrueWatch Platform workspace](#fin
 wrangler secret bulk ./secrets.json
 ```
 
+#### Token Authentication
+
+The Worker enforces token-based authentication for all incoming requests:
+
+- The `token` query parameter in the request URL must match the token in the `ENV_DATAWAY` secret
+- If the token is missing or doesn't match, the request will be rejected with a `401 Unauthorized` error
+- This ensures that only authorized clients with the correct token can send data to your DataKit instance
+
+**Example Request:**
+```bash
+curl https://YOUR_CUSTOM_DOMAIN/v1/write/logstreaming?token=your_token_here \
+  -H "Content-Type: application/json" \
+  -d '{"message": "test log"}'
+```
+
+**Note:** The `token` parameter must be included in every request URL. The token value should match the token portion of your `ENV_DATAWAY` URL.
+
 ## Local Development
 
 Create a `.env` file with `ENV_DATAWAY` (see [Configure Environment Variables](#configure-environment-variables)). Then start the development server:
@@ -356,10 +373,10 @@ Expected response: `pong` or similar success message.
 ### Test Log Streaming Endpoint
 
 ```bash
-curl -kvL https://YOUR_CUSTOM_DOMAIN/v1/write/logstreaming
+curl -kvL https://YOUR_CUSTOM_DOMAIN/v1/write/logstreaming?token=your_token_here
 ```
 
-This should return a response indicating the endpoint is available.
+Replace `your_token_here` with the actual token from your `ENV_DATAWAY` URL. This should return a response indicating the endpoint is available. Without a valid token, you'll receive a `401 Unauthorized` error.
 
 ### Check Container Status
 
@@ -419,6 +436,16 @@ If DataKit is configured to collect metrics, you can verify by checking the True
 3. Verify the `ENV_DATAWAY` URL is accessible from Cloudflare's network
 4. Check TrueWatch Platform dashboard for any connection errors
 5. Ensure `ENV_DEFAULT_ENABLED_INPUTS` includes the collectors you need
+
+#### Token authentication errors
+
+**Problem:** Requests are rejected with `401 Unauthorized` error.
+
+**Solution:**
+1. Verify the `token` query parameter is included in the request URL
+2. Ensure the token matches the token in your `ENV_DATAWAY` secret
+3. Check that `ENV_DATAWAY` is correctly set: `wrangler secret list`
+4. Example correct request format: `https://YOUR_DOMAIN/v1/write/logstreaming?token=your_token_here`
 
 #### Custom domain not working
 
