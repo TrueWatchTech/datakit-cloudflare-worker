@@ -23,6 +23,11 @@ Container (DataKit + Logstreaming)
 ### 1. Cloudflare Logpush
 - **Function**: Pushes HTTP request logs from Cloudflare domain to the Worker
 - **Configuration**: Configure the push destination as a custom domain in Cloudflare Dashboard's Logpush settings
+- **Request Parameters:
+  - source: cf-logpush-worker
+  - service: domain-httprequest(helloworld.com-httprequest)
+  - type: firelens
+  - token: TrueWatch Workspace Token(tkn_xxxxxxxxx)
 
 ### 2. Cloudflare Worker
 - **Function**: Receives log requests and routes them to container instances
