@@ -27,7 +27,7 @@ Container (DataKit + Logstreaming)
   - source: cf-logpush-worker
   - service: domain-httprequest(helloworld.com-httprequest)
   - type: firelens
-  - token: TrueWatch Workspace Token(tkn_xxxxxxxxx)
+  - token: Your TrueWatch Workspace Token
 
 ### 2. Cloudflare Worker
 - **Function**: Receives log requests and routes them to container instances
